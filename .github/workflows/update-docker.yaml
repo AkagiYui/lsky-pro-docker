@@ -34,9 +34,6 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      - name: Set up Docker environment
-        uses: docker/setup-docker@v1
-
       - name: Build and package
         run: |
           docker build -t alas/lsky-pro-docker:latest .
