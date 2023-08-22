@@ -1,8 +1,7 @@
 name: Build and push Docker images
 
 on:
-  schedule:
-  - cron: '0 7 * * *'
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -19,7 +18,7 @@ jobs:
 
       - name: Download and Unzip Upstream Source Code
         run: |
-          curl -OL https://github.com/lsky-org/lsky-pro/archive/refs/heads/master.zip
+          curl -OL https://github.com/Okysu/lsky-pro/archive/refs/heads/master.zip
           unzip *.zip
           mv ./lsky-pro-master/* ./
           mv ./lsky-pro-master/.env.example ./
@@ -35,13 +34,16 @@ jobs:
       - name: Install Dependencies
         run: composer install
 
-      - name: Login to DockerHub
-        uses: docker/login-action@v1 
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Build and push
+      - name: Set up Docker environment
+        uses: docker/setup-docker@v1
+
+      - name: Build and package
         run: |
-          docker build -t halcyonazure/lsky-pro-docker:latest .
-          docker push halcyonazure/lsky-pro-docker:latest
+          docker build -t alas/lsky-pro-docker:latest .
+          docker save alas/lsky-pro-docker:latest > lsky-pro-docker.tar
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: lsky-pro-docker
+          path: lsky-pro-docker.tar
